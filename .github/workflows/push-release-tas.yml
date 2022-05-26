@@ -1,0 +1,25 @@
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+jobs:
+  push-release-tag:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: '0'
+
+      - name: Lookup current version
+        id: lookup-current-version
+        uses: mikefarah/yq@master
+        with:
+          cmd: yq '.version' pubspec.yaml
+
+      - name: Create tag
+        uses: rickstaa/action-create-tag@v1
+        with:
+          force_push_tag: true
+          tag: v${{ steps.lookup-current-version.outputs.result }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
